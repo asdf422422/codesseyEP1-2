@@ -1,4 +1,5 @@
 import sys #KeyboardInterrupt와 EOFError 처리용 시스템 
+import json #데이터 기록용
 
 # 1. 메뉴(로 복귀도 가능해야하고 메뉴에서 나갈수도있어야하고나너무배고프다그냥재미없지나갈까..상태가되)
 
@@ -35,7 +36,7 @@ def numinput(min=1, max=4): #default 범위가 1~4(답안 선택지)
             sys.exit(0)
 # 데이터 파일이 없거나, 손상된 경우 -> 기본 퀴즈 데이터로 복구(혹은 초기화)
 
-#퀴즈 클래스
+# 퀴즈 클래스
 class QUIZ:
     def __init__(self, topic, question, choices, answer):
         if not isinstance(choices, (list, tuple)):
@@ -56,11 +57,13 @@ class QUIZ:
         self.choices = choices
         self.answer = answer
 
-    def quiz(self):
+    def solve(self):
         print(self.question)
-        for i, choice in enumerate(quiz1.choices, start=1):
+        for i, choice in enumerate(self.choices, start=1):
             print(f"{i}. {choice}")
-
+        ans = numinput()
+        return self.grading(ans)
+    
     def grading(self, ans):
         if ans == self.answer:
             print("정답입니다! +10점")
@@ -69,10 +72,39 @@ class QUIZ:
             print("오답입니다. +0점")
             return False
 
-quiz1 = QUIZ("누오", "누오의 색깔은?", ["파란색", "빨간색", "노란색", "주황색"], 4)
-quiz1.quiz()
-answer = numinput()
-quiz1.grading(answer)
+# 기본 퀴즈 데이터
+quiz1 = QUIZ("누오", "누오의 색깔은 무엇인가?", ["빨간색", "파란색", "노란색", "주황색"], 2)
+quiz2 = QUIZ("누오", "누오의 타입은 무엇인가?", ["물, 땅", "물, 불", "불, 땅", "전기, 비행"], 1)
+quiz3 = QUIZ("누오", "누오의 세대는 무엇인가?", ["1", "2", "3", "4"], 2)
+quiz4 = QUIZ("누오", "누오의 분류는 무엇인가?", ["전설의 포켓몬", "프릴 포켓몬", "스타팅 포켓몬", "수어 포켓몬"], 4)
+quiz5 = QUIZ("누오", "어떤 포켓몬이 진화하여 누오가 되는가?", ["누리레느", "발챙이", "우파", "수댕이"], 3)
+
+quizzes = [
+    quiz1, quiz2, quiz3, quiz4, quiz5
+]
+data = []
+for quiz in quizzes:
+    data.append({
+        "topic": quiz.topic,
+        "question": quiz. question,
+        "choices": quiz.choices,
+        "answer": quiz.answer
+    })
+
+with open("state.json", "w", encoding="utf-8") as file:
+    json.dump(data, file, ensure_ascii=False, indent=4) #json에 저장!
+
+#퀴즈 풀기
+def solvequiz():
+    score = 0
+    for quiz in quizzes: 
+        result = quiz.solve()
+        if result:
+            score +=10
+    return score
+    
+score = solvequiz()
+print(score)
 #퀴즈 추가
 #퀴즈 목록
 #퀴즈 풀기
