@@ -36,6 +36,35 @@ def numinput(min=1, max=4): #default 범위가 1~4(답안 선택지)
 # 데이터 파일이 없거나, 손상된 경우 -> 기본 퀴즈 데이터로 복구(혹은 초기화)
 
 #퀴즈 클래스
+class QUIZ:
+    def __init__(self, topic, question, choices, answer):
+        if not isinstance(choices, (list, tuple)):
+            raise TypeError("choices는 리스트 또는 튜플여야 합니다.")
+        try: 
+            answer = int(answer)
+        except ValueError:
+            raise ValueError("정답은 1~4 사이의 정수여야 합니다.")
+        
+        if len(choices) != 4:
+            raise ValueError("choices는 4개로 구성되어야 합니다.")
+
+        if not (1 <= answer <= 4):
+            raise ValueError("정답은 1~4 사이의 정수여야 합니다.")
+
+        self.topic = topic
+        self.question = question
+        self.choices = choices
+        self.answer = answer
+
+    def grading(self, ans):
+        if ans == self.answer:
+            print("정답입니다! +10점")
+            return True
+        else:
+            print("오답입니다. +0점")
+            return False
+
+quiz1 = QUIZ("누오", "누오의 색깔은?", ["파란색", "빨간색", "노란색", "주황색"], 4)
 
 #퀴즈 추가
 #퀴즈 목록
