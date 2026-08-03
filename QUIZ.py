@@ -56,6 +56,11 @@ class QUIZ:
         self.choices = choices
         self.answer = answer
 
+    def quiz(self):
+        print(self.question)
+        for i, choice in enumerate(quiz1.choices, start=1):
+            print(f"{i}. {choice}")
+
     def grading(self, ans):
         if ans == self.answer:
             print("정답입니다! +10점")
@@ -65,7 +70,9 @@ class QUIZ:
             return False
 
 quiz1 = QUIZ("누오", "누오의 색깔은?", ["파란색", "빨간색", "노란색", "주황색"], 4)
-
+quiz1.quiz()
+answer = numinput()
+quiz1.grading(answer)
 #퀴즈 추가
 #퀴즈 목록
 #퀴즈 풀기
