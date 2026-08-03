@@ -97,10 +97,14 @@ with open("state.json", "w", encoding="utf-8") as file:
 #퀴즈 풀기
 def solvequiz():
     score = 0
+    if len(quizzes) == 0:
+        print("저장된 퀴즈가 없습니다.") 
+        return 0
     for quiz in quizzes: 
         result = quiz.solve()
         if result:
             score +=10
+    print(score, "점 입니다.")
     return score
     
 score = solvequiz()
