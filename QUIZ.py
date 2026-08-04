@@ -4,6 +4,7 @@ import json #데이터 기록용
 maxscore = 0 #최고 점수 기록용
 # 1. [check] 메뉴(로 복귀도 가능해야하고 메뉴에서 나갈수도있어야하고나너무배고프다그냥재미없지나갈까..상태가되)
 
+
 # 2. 입력/예외처리 함수 
 # 숫자 입력(앞뒤 공백 제거, 변환 실패 or 범위밖 or 빈입력 시 재입력)
 def numinput(prompt= "선택할 번호를 입력해주세요: ",min=1, max=4): #default 범위가 1~4(답안 선택지)
@@ -83,6 +84,8 @@ quiz5 = QUIZ("누오", "어떤 포켓몬이 진화하여 누오가 되는가?", 
 quizzes = [
     quiz1, quiz2, quiz3, quiz4, quiz5
 ]
+
+# [check] save in file (quizzes, score)
 data = []
 for quiz in quizzes:
     data.append({
@@ -95,7 +98,7 @@ for quiz in quizzes:
 with open("state.json", "w", encoding="utf-8") as file:
     json.dump(data, file, ensure_ascii=False, indent=4) #json에 저장!
 
-#퀴즈 풀기
+#[check] 퀴즈 풀기
 def quizsolve():
     global maxscore
     score = 0 
@@ -111,11 +114,12 @@ def quizsolve():
     #max score
     if maxscore < score: 
         maxscore = score
-
+#save the maxscore
 #[check] 퀴즈 추가
 def quizappend():
     global quizzes
-    name = input("Write the quiz name: ") #check if the same name exists in quizzes 
+    quiz_number = len(quizzes) + 1
+    quiz_name = f"quiz{quiz_number}"
     topic = input("Write the topic: ") 
     question = input("Write the questioin: ")
     choices = []
@@ -125,8 +129,10 @@ def quizappend():
                 print(f"{i}. {choice}")
     answer = numinput("Write the number of the answer: ")
     # check if the given values are usable
-    name = QUIZ(topic, question, choices, answer)
-    quizzes.append(name) #not name the value of the name check 
+    quiz_name = QUIZ(topic, question, choices, answer)
+    quizzes.append(quiz_name) 
+# save the quiz 
+
 # 퀴즈 목록
 def quizlist():
     if len(quizzes) == 0:
@@ -139,6 +145,10 @@ def quizlist():
         i+=1
 
 #[check] 퀴즈 풀기
-#[check] 점수 확인
+# 점수 확인
+def quizscore():
+    print(maxscore, "is the best score!")
+
 #[check] 퀴즈게임 클래스
+
 #[check] 파일 저장 및 불러오기
