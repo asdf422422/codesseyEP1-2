@@ -6,10 +6,10 @@ maxscore = 0 #최고 점수 기록용
 
 # 2. 입력/예외처리 함수 
 # 숫자 입력(앞뒤 공백 제거, 변환 실패 or 범위밖 or 빈입력 시 재입력)
-def numinput(min=1, max=4): #default 범위가 1~4(답안 선택지)
+def numinput(prompt= "선택할 번호를 입력해주세요: ",min=1, max=4): #default 범위가 1~4(답안 선택지)
     while True:
         try:
-            num = input("선택할 번호를 입력해주세요: ")
+            num = input(prompt)
             num = num.strip()
             
             #공백 체크
@@ -113,8 +113,21 @@ def quizsolve():
         maxscore = score
 
 #[check] 퀴즈 추가
-
-#[check] 퀴즈 목록
+def quizappend():
+    global quizzes
+    name = input("Write the quiz name: ") #check if the same name exists in quizzes 
+    topic = input("Write the topic: ") 
+    question = input("Write the questioin: ")
+    choices = []
+    for i in range(1,5):
+        choices.append(input(f"Write {i}th choice: "))     
+    for i, choice in enumerate(choices, start=1):
+                print(f"{i}. {choice}")
+    answer = numinput("Write the number of the answer: ")
+    # check if the given values are usable
+    name = QUIZ(topic, question, choices, answer)
+    quizzes.append(name) #not name the value of the name check 
+# 퀴즈 목록
 def quizlist():
     if len(quizzes) == 0:
         print("저장된 퀴즈가 없습니다.") 
