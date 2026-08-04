@@ -2,9 +2,38 @@ import sys #KeyboardInterrupt와 EOFError 처리용 시스템
 import json #데이터 기록용
 
 maxscore = 0 #최고 점수 기록용
+data = {
+        "quizzes": [],
+        "maxscore": maxscore
+    } #save files 
 # 1. [check] 메뉴(로 복귀도 가능해야하고 메뉴에서 나갈수도있어야하고나너무배고프다그냥재미없지나갈까..상태가되)
+def menu():
+    print("1. 퀴즈 풀기")
+    print("2. 퀴즈 추가")
+    print("3. 목록 보기")
+    print("4. 점수 확인")
+    print("5. 파일 저장/불러오기")
+    print("0. exit")
+    select = numinput(min=0, max=5)
+    if select == 0:
+        exit_program()
+    elif select == 1:
+        quizsolve()
+    elif select ==2:
+        quizappend()
+    elif select ==3:
+        quizlist()
+    elif select == 4:
+        quizscore()
+    elif select ==5:
+        save_quizzes()
 
-
+def exit_program():
+    a = numinput("will you really quit? 1: yes, 2: no", 1, 2)
+    if a == 1:
+        sys.exit()
+    elif a == 2:
+        menu()
 # 2. 입력/예외처리 함수 
 # 숫자 입력(앞뒤 공백 제거, 변환 실패 or 범위밖 or 빈입력 시 재입력)
 def numinput(prompt= "선택할 번호를 입력해주세요: ",min=1, max=4): #default 범위가 1~4(답안 선택지)
@@ -85,18 +114,20 @@ quizzes = [
     quiz1, quiz2, quiz3, quiz4, quiz5
 ]
 
-# [check] save in file (quizzes, score)
-data = []
+basedata = {
+        "quizzes": [],
+        "maxscore": maxscore
+    }
 for quiz in quizzes:
-    data.append({
+    basedata["quizzes"].append({
         "topic": quiz.topic,
-        "question": quiz. question,
+        "question": quiz.question,
         "choices": quiz.choices,
         "answer": quiz.answer
     })
 
 with open("state.json", "w", encoding="utf-8") as file:
-    json.dump(data, file, ensure_ascii=False, indent=4) #json에 저장!
+    json.dump(basedata, file, ensure_ascii=False, indent=4)
 
 #[check] 퀴즈 풀기
 def quizsolve():
@@ -114,6 +145,10 @@ def quizsolve():
     #max score
     if maxscore < score: 
         maxscore = score
+        data["maxscore"] = maxscore
+        with open("state.json", "w", encoding="utf-8") as file:
+                json.dump(data, file, ensure_ascii=False, indent=4)
+        
 #save the maxscore
 #[check] 퀴즈 추가
 def quizappend():
@@ -152,3 +187,22 @@ def quizscore():
 #[check] 퀴즈게임 클래스
 
 #[check] 파일 저장 및 불러오기
+
+
+def save_quizzes(quizzes, maxscore):
+    global data
+
+    for quiz in quizzes:
+        data["quizzes"].append({
+            "topic": quiz.topic,
+            "question": quiz.question,
+            "choices": quiz.choices,
+            "answer": quiz.answer
+        })
+
+    with open("state.json", "w", encoding="utf-8") as file:
+        json.dump(data, file, ensure_ascii=False, indent=4)
+
+    print("Quizzes saved!")
+
+menu()
