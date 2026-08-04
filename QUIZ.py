@@ -1,7 +1,8 @@
 import sys #KeyboardInterrupt와 EOFError 처리용 시스템 
 import json #데이터 기록용
 
-# 1. 메뉴(로 복귀도 가능해야하고 메뉴에서 나갈수도있어야하고나너무배고프다그냥재미없지나갈까..상태가되)
+maxscore = 0 #최고 점수 기록용
+# 1. [check] 메뉴(로 복귀도 가능해야하고 메뉴에서 나갈수도있어야하고나너무배고프다그냥재미없지나갈까..상태가되)
 
 # 2. 입력/예외처리 함수 
 # 숫자 입력(앞뒤 공백 제거, 변환 실패 or 범위밖 or 빈입력 시 재입력)
@@ -32,9 +33,9 @@ def numinput(min=1, max=4): #default 범위가 1~4(답안 선택지)
         except (KeyboardInterrupt, EOFError):
             # 에러 발생시 
             print("\n입력이 취소되었습니다. 프로그램을 종료합니다.")
-            # 필요한 저장 작업이 있다면 여기에서 수행
+            # [check] 필요한 저장 작업이 있다면 여기에서 수행
             sys.exit(0)
-# 데이터 파일이 없거나, 손상된 경우 -> 기본 퀴즈 데이터로 복구(혹은 초기화)
+# [check] 데이터 파일이 없거나, 손상된 경우 -> 기본 퀴즈 데이터로 복구(혹은 초기화)
 
 # 퀴즈 클래스
 class QUIZ:
@@ -95,8 +96,9 @@ with open("state.json", "w", encoding="utf-8") as file:
     json.dump(data, file, ensure_ascii=False, indent=4) #json에 저장!
 
 #퀴즈 풀기
-def solvequiz():
-    score = 0
+def quizsolve():
+    global maxscore
+    score = 0 
     if len(quizzes) == 0:
         print("저장된 퀴즈가 없습니다.") 
         return 0
@@ -105,13 +107,25 @@ def solvequiz():
         if result:
             score +=10
     print(score, "점 입니다.")
-    return score
-    
-score = solvequiz()
-print(score)
-#퀴즈 추가
-#퀴즈 목록
-#퀴즈 풀기
-#점수 확인
-#퀴즈게임 클래스
-#파일 저장 및 불러오기
+
+    #max score
+    if maxscore < score: 
+        maxscore = score
+
+#[check] 퀴즈 추가
+
+#[check] 퀴즈 목록
+def quizlist():
+    if len(quizzes) == 0:
+        print("저장된 퀴즈가 없습니다.") 
+        return 0
+    i = 0
+    print("\033[34m퀴즈 목록\033[0m")   
+    for quiz in quizzes: 
+        print(i, ".", quiz.question)
+        i+=1
+
+#[check] 퀴즈 풀기
+#[check] 점수 확인
+#[check] 퀴즈게임 클래스
+#[check] 파일 저장 및 불러오기
