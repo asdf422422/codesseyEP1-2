@@ -1,6 +1,25 @@
 import sys #KeyboardInterrupt와 EOFError 처리용 시스템 
 import json #데이터 기록용
 
+# ===== 스타일 =====
+RESET = "\033[0m"
+BOLD = "\033[1m"
+
+RED = "\033[31m"
+GREEN = "\033[32m"
+YELLOW = "\033[33m"
+BLUE = "\033[34m"
+MAGENTA = "\033[35m"
+CYAN = "\033[36m"
+WHITE = "\033[37m"
+
+# 밝은 색
+BRIGHT_RED = "\033[91m"
+BRIGHT_GREEN = "\033[92m"
+BRIGHT_YELLOW = "\033[93m"
+BRIGHT_BLUE = "\033[94m"
+BRIGHT_MAGENTA = "\033[95m"
+BRIGHT_CYAN = "\033[96m"
 
 
 class Quiz:
@@ -25,23 +44,29 @@ class Quiz:
         self.answer = answer
 
     def solve(self):
-        print(f"\n[{self.topic}]")
-        print(self.question)
+        print(f"\n{BOLD}{BRIGHT_BLUE}[{self.topic}]{RESET}")
+        print(f"{BOLD}{self.question}{RESET}")
 
         for i, choice in enumerate(self.choices, start=1):
-            print(f"{i}. {choice}")
+            print(f"{CYAN}{i}.{RESET} {choice}")
 
-        answer = numinput("답을 입력하세요: ", 1, 4)
+        answer = numinput(
+    f"{BRIGHT_YELLOW}{BOLD}답을 입력하세요 ▶ {RESET}",
+    1,
+    4
+)
+
 
         return self.grading(answer)
 
     def grading(self, answer):
         if answer == self.answer:
-            print("정답입니다! +10점")
+            print(f"{BRIGHT_GREEN}{BOLD}✅ 정답입니다! +10점{RESET}")
             return True
 
-        print("오답입니다. +0점")
+        print(f"{BRIGHT_RED}{BOLD}❌ 오답입니다. +0점{RESET}")
         return False
+
 
 class QuizGame:
     def __init__(self):
@@ -53,15 +78,26 @@ class QuizGame:
     
     def menu(self):
         while True:
-            print()
-            print("1. 퀴즈 풀기")
-            print("2. 퀴즈 추가")
-            print("3. 목록 보기")
-            print("4. 점수 확인")
-            print("5. 파일 저장/불러오기")
-            print("0. 종료")
+            print(f"""
+{BRIGHT_CYAN}{BOLD}
+===================================
+        🎮 퀴즈 게임
+===================================
+{RESET}
+{BRIGHT_GREEN}1.{RESET} 퀴즈 풀기
+{BRIGHT_GREEN}2.{RESET} 퀴즈 추가
+{BRIGHT_GREEN}3.{RESET} 목록 보기
+{BRIGHT_GREEN}4.{RESET} 최고 점수
+{BRIGHT_GREEN}5.{RESET} 저장 / 불러오기
+{BRIGHT_RED}0.{RESET} 종료
+""")
 
-            select = numinput(min=0, max=5)
+            select = numinput(
+    f"{BRIGHT_GREEN}{BOLD}메뉴 선택 ▶ {RESET}",
+    0,
+    5
+)
+
 
             if select == 0:
                 self.exit_program()
@@ -96,11 +132,12 @@ class QuizGame:
 
         if choice == 1:
             self.save()
-            print("저장 후 종료합니다.")
+            print(f"{BRIGHT_RED}{BOLD}프로그램을 종료합니다.{RESET}")
             sys.exit()
 
         elif choice == 2:
-            print("저장하지 않고 종료합니다.")
+            print(f"{BRIGHT_RED}{BOLD}저장하지 않고 프로그램을 종료합니다.{RESET}")
+
             sys.exit()
 
         else:
@@ -117,7 +154,8 @@ class QuizGame:
             if quiz.solve():
                 score += 10
 
-        print(f"{score}점 입니다.")
+        print(f"\n{BRIGHT_YELLOW}{BOLD}현재 점수: {score}점{RESET}")
+
 
         # 최고 점수 갱신
         if score > self.best_score:
@@ -127,7 +165,7 @@ class QuizGame:
             with open("state.json", "w", encoding="utf-8") as file:
                 json.dump(self.data, file, ensure_ascii=False, indent=4)
 
-            print("최고 점수가 갱신되었습니다!")
+            print(f"{BRIGHT_MAGENTA}{BOLD}🏆 최고 점수가 갱신되었습니다!{RESET}")
 
     def quizappend(self):
         topic = input("퀴즈의 주제를 입력하세요: ")
@@ -154,14 +192,19 @@ class QuizGame:
             print("저장된 퀴즈가 없습니다.")
             return
 
-        print("\033[34m퀴즈 목록\033[0m")
-
+        print(f"""
+{BRIGHT_BLUE}{BOLD}
+==========================
+       📚 퀴즈 목록
+==========================
+{RESET}
+""")
         for i, quiz in enumerate(self.quizzes, start=1):
-            print(f"{i}. {quiz.question}")
+            print(f"{BRIGHT_CYAN}{i:2}.{RESET} {quiz.question}")
     
     def quizscore(self):
-        print(f"최고 점수: {self.best_score}점")
-    
+        print(f"\n{BRIGHT_YELLOW}{BOLD}최고 점수: {self.best_score}점{RESET}")
+
     def save(self):
         self.data["quizzes"] = []
 
@@ -178,7 +221,7 @@ class QuizGame:
         with open("state.json", "w", encoding="utf-8") as file:
             json.dump(self.data, file, ensure_ascii=False, indent=4)
 
-        print("Quizzes saved!")
+        print(f"{BRIGHT_GREEN}✔ 저장 완료!{RESET}")
 
     def load(self):
         try:
@@ -199,10 +242,10 @@ class QuizGame:
                     )
                 )
 
-            print("Quizzes loaded!")
+            print(f"{BRIGHT_CYAN}✔ 데이터 불러오기 완료!{RESET}")
 
         except (FileNotFoundError, json.JSONDecodeError, KeyError):
-            print("저장된 데이터가 없거나 손상되었습니다.")
+            print(f"{BRIGHT_RED}{BOLD}저장된 데이터가 없거나 손상되었습니다.{RESET}")
             print("기본 퀴즈 데이터로 복구합니다.")
 
             self.quizzes = create_basic_quizzes()
@@ -214,7 +257,8 @@ class QuizGame:
 
             self.save()
 
-            print("기본 데이터 복구 완료!")
+            print(f"{BRIGHT_CYAN}✔ 데이터 불러오기 완료!{RESET}")
+
 
 
 def numinput(prompt="선택할 번호를 입력해주세요: ", min=1, max=4):
@@ -280,7 +324,6 @@ def create_basic_quizzes():
     )
 
     return [quiz1, quiz2, quiz3, quiz4, quiz5]
-
 
 def create_basic_data(best_score=0):
     quizzes = create_basic_quizzes()

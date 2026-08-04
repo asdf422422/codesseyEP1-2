@@ -76,6 +76,28 @@
                 "3"
             ],
             "answer": 2
+        },
+        {
+            "topic": "31",
+            "question": "42",
+            "choices": [
+                "1",
+                "2",
+                "1",
+                "4"
+            ],
+            "answer": 2
+        },
+        {
+            "topic": "4",
+            "question": "34",
+            "choices": [
+                "143",
+                "31",
+                "4",
+                "3"
+            ],
+            "answer": 1
         }
     ],
     "best_score": 60
