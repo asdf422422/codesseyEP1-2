@@ -1,10 +1,10 @@
 import sys #KeyboardInterrupt와 EOFError 처리용 시스템 
 import json #데이터 기록용
 
-maxscore = 0 #최고 점수 기록용
+best_score = 0 #최고 점수 기록용
 data = {
         "quizzes": [],
-        "maxscore": maxscore
+        "maxscore": best_score
     } #save files 
 # 1. [check] 메뉴(로 복귀도 가능해야하고 메뉴에서 나갈수도있어야하고나너무배고프다그냥재미없지나갈까..상태가되)
 def menu():
@@ -26,10 +26,14 @@ def menu():
     elif select == 4:
         quizscore()
     elif select ==5:
-        save_quizzes()
+        a = numinput("1: save, 2: load: ")
+        if a == 1:
+            save()
+        elif a ==2: 
+            load()
 
 def exit_program():
-    a = numinput("will you really quit? 1: yes, 2: no", 1, 2)
+    a = numinput("will you really quit? 1: yes, 2: no: ", 1, 2)
     if a == 1:
         sys.exit()
     elif a == 2:
@@ -49,10 +53,10 @@ def numinput(prompt= "선택할 번호를 입력해주세요: ",min=1, max=4): #
             value = int(num)
 
             # 범위 체크
-            if value < 1:
+            if value < min:
                 print(f"{min} 이상의 값을 입력해주세요.")
                 continue
-            if value > 4:
+            if value > max:
                 print(f"{max} 이히의 값을 입력해주세요.")
                 continue
             return value
@@ -63,7 +67,7 @@ def numinput(prompt= "선택할 번호를 입력해주세요: ",min=1, max=4): #
         except (KeyboardInterrupt, EOFError):
             # 에러 발생시 
             print("\n입력이 취소되었습니다. 프로그램을 종료합니다.")
-            # [check] 필요한 저장 작업이 있다면 여기에서 수행
+            save()
             sys.exit(0)
 # [check] 데이터 파일이 없거나, 손상된 경우 -> 기본 퀴즈 데이터로 복구(혹은 초기화)
 
@@ -116,7 +120,7 @@ quizzes = [
 
 basedata = {
         "quizzes": [],
-        "maxscore": maxscore
+        "best score": best_score
     }
 for quiz in quizzes:
     basedata["quizzes"].append({
@@ -131,7 +135,7 @@ with open("state.json", "w", encoding="utf-8") as file:
 
 #[check] 퀴즈 풀기
 def quizsolve():
-    global maxscore
+    global best_score
     score = 0 
     if len(quizzes) == 0:
         print("저장된 퀴즈가 없습니다.") 
@@ -143,11 +147,12 @@ def quizsolve():
     print(score, "점 입니다.")
 
     #max score
-    if maxscore < score: 
-        maxscore = score
-        data["maxscore"] = maxscore
+    if best_score < score: 
+        best_score = score
+        data["best_score"] = best_score
         with open("state.json", "w", encoding="utf-8") as file:
                 json.dump(data, file, ensure_ascii=False, indent=4)
+    menu()
         
 #save the maxscore
 #[check] 퀴즈 추가
@@ -166,7 +171,7 @@ def quizappend():
     # check if the given values are usable
     quiz_name = QUIZ(topic, question, choices, answer)
     quizzes.append(quiz_name) 
-# save the quiz 
+    menu()
 
 # 퀴즈 목록
 def quizlist():
@@ -178,18 +183,20 @@ def quizlist():
     for quiz in quizzes: 
         print(i, ".", quiz.question)
         i+=1
+    menu()
 
 #[check] 퀴즈 풀기
 # 점수 확인
 def quizscore():
-    print(maxscore, "is the best score!")
+    print(best_score, "is the best score!")
+    menu()
 
 #[check] 퀴즈게임 클래스
 
 #[check] 파일 저장 및 불러오기
 
 
-def save_quizzes(quizzes, maxscore):
+def save():
     global data
 
     for quiz in quizzes:
@@ -204,5 +211,13 @@ def save_quizzes(quizzes, maxscore):
         json.dump(data, file, ensure_ascii=False, indent=4)
 
     print("Quizzes saved!")
+    menu()
 
+def load():
+    with open("state.json", "r", encoding="utf-8") as file:
+        data = json.load(file)
+
+    print("Quizzes loaded!")
+    return data
+# just add 
 menu()
