@@ -54,7 +54,29 @@
                 "수댕이"
             ],
             "answer": 3
+        },
+        {
+            "topic": "누오",
+            "question": "누오는 동그란가?",
+            "choices": [
+                "응",
+                "니",
+                "동그랗다",
+                "네모네모"
+            ],
+            "answer": 3
+        },
+        {
+            "topic": "1",
+            "question": "1",
+            "choices": [
+                "4",
+                "3",
+                "4",
+                "3"
+            ],
+            "answer": 2
         }
     ],
-    "best_score": 0
+    "best_score": 60
 }

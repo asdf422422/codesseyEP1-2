@@ -45,8 +45,11 @@ class Quiz:
 
 class QuizGame:
     def __init__(self):
-        best_score = 0
-        basedata = create_basic_data(best_score)
+        self.best_score = 0
+        self.quizzes = []
+        self.data = {}
+
+        self.load()
     
     def menu(self):
         while True:
@@ -298,7 +301,7 @@ def create_basic_data(best_score=0):
     with open("state.json", "w", encoding="utf-8") as file:
         json.dump(basedata, file, ensure_ascii=False, indent=4)
 
-    return basedata
+    return quizzes
 
 
 if __name__ == "__main__":
