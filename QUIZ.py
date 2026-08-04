@@ -284,7 +284,9 @@ def numinput(prompt="선택할 번호를 입력해주세요: ", min=1, max=4):
             print("정수를 입력해주세요.")
 
         except (KeyboardInterrupt, EOFError):
-            print("\n입력이 취소되었습니다. 프로그램을 종료합니다.")
+            print("\n입력이 취소되었습니다.")
+            game.save()
+            print("프로그램을 종료합니다.")
             sys.exit(0)
 
 def create_basic_quizzes():
