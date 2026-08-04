@@ -1,86 +1,18 @@
 import sys #KeyboardInterrupt와 EOFError 처리용 시스템 
 import json #데이터 기록용
 
-best_score = 0 #최고 점수 기록용
-data = {
-        "quizzes": [],
-        "maxscore": best_score
-    } #save files 
-# 1. [check] 메뉴(로 복귀도 가능해야하고 메뉴에서 나갈수도있어야하고나너무배고프다그냥재미없지나갈까..상태가되)
-def menu():
-    print("1. 퀴즈 풀기")
-    print("2. 퀴즈 추가")
-    print("3. 목록 보기")
-    print("4. 점수 확인")
-    print("5. 파일 저장/불러오기")
-    print("0. exit")
-    select = numinput(min=0, max=5)
-    if select == 0:
-        exit_program()
-    elif select == 1:
-        quizsolve()
-    elif select ==2:
-        quizappend()
-    elif select ==3:
-        quizlist()
-    elif select == 4:
-        quizscore()
-    elif select ==5:
-        a = numinput("1: save, 2: load: ")
-        if a == 1:
-            save()
-        elif a ==2: 
-            load()
 
-def exit_program():
-    a = numinput("will you really quit? 1: yes, 2: no: ", 1, 2)
-    if a == 1:
-        sys.exit()
-    elif a == 2:
-        menu()
-# 2. 입력/예외처리 함수 
-# 숫자 입력(앞뒤 공백 제거, 변환 실패 or 범위밖 or 빈입력 시 재입력)
-def numinput(prompt= "선택할 번호를 입력해주세요: ",min=1, max=4): #default 범위가 1~4(답안 선택지)
-    while True:
-        try:
-            num = input(prompt)
-            num = num.strip()
-            
-            #공백 체크
-            if num == "":            
-                print("입력이 비어 있습니다. 다시 입력하세요.")
-                continue
-            value = int(num)
 
-            # 범위 체크
-            if value < min:
-                print(f"{min} 이상의 값을 입력해주세요.")
-                continue
-            if value > max:
-                print(f"{max} 이히의 값을 입력해주세요.")
-                continue
-            return value
-
-        except ValueError:
-            # 정수 체크
-            print("정수를 입력해주세요.")
-        except (KeyboardInterrupt, EOFError):
-            # 에러 발생시 
-            print("\n입력이 취소되었습니다. 프로그램을 종료합니다.")
-            save()
-            sys.exit(0)
-# [check] 데이터 파일이 없거나, 손상된 경우 -> 기본 퀴즈 데이터로 복구(혹은 초기화)
-
-# 퀴즈 클래스
-class QUIZ:
+class Quiz:
     def __init__(self, topic, question, choices, answer):
         if not isinstance(choices, (list, tuple)):
-            raise TypeError("choices는 리스트 또는 튜플여야 합니다.")
-        try: 
+            raise TypeError("choices는 리스트 또는 튜플이어야 합니다.")
+
+        try:
             answer = int(answer)
-        except ValueError:
+        except (ValueError, TypeError):
             raise ValueError("정답은 1~4 사이의 정수여야 합니다.")
-        
+
         if len(choices) != 4:
             raise ValueError("choices는 4개로 구성되어야 합니다.")
 
@@ -89,118 +21,274 @@ class QUIZ:
 
         self.topic = topic
         self.question = question
-        self.choices = choices
+        self.choices = list(choices)
         self.answer = answer
 
     def solve(self):
+        print(f"\n[{self.topic}]")
         print(self.question)
+
         for i, choice in enumerate(self.choices, start=1):
             print(f"{i}. {choice}")
-        ans = numinput()
-        return self.grading(ans)
-    
-    def grading(self, ans):
-        if ans == self.answer:
+
+        answer = numinput("답을 입력하세요: ", 1, 4)
+
+        return self.grading(answer)
+
+    def grading(self, answer):
+        if answer == self.answer:
             print("정답입니다! +10점")
             return True
+
+        print("오답입니다. +0점")
+        return False
+
+class QuizGame:
+    def __init__(self):
+        best_score = 0
+        basedata = create_basic_data(best_score)
+    
+    def menu(self):
+        while True:
+            print()
+            print("1. 퀴즈 풀기")
+            print("2. 퀴즈 추가")
+            print("3. 목록 보기")
+            print("4. 점수 확인")
+            print("5. 파일 저장/불러오기")
+            print("0. 종료")
+
+            select = numinput(min=0, max=5)
+
+            if select == 0:
+                self.exit_program()
+            elif select == 1:
+                self.quizsolve()
+            elif select == 2:
+                self.quizappend()
+            elif select == 3:
+                self.quizlist()
+            elif select == 4:
+                self.quizscore()
+            elif select == 5:
+                self.file_menu()
+
+    def file_menu(self):
+        print("1. 저장")
+        print("2. 불러오기")
+
+        choice = numinput("선택: ", 1, 2)
+
+        if choice == 1:
+            self.save()
         else:
-            print("오답입니다. +0점")
-            return False
+            self.load()
 
-# 기본 퀴즈 데이터
-quiz1 = QUIZ("누오", "누오의 색깔은 무엇인가?", ["빨간색", "파란색", "노란색", "주황색"], 2)
-quiz2 = QUIZ("누오", "누오의 타입은 무엇인가?", ["물, 땅", "물, 불", "불, 땅", "전기, 비행"], 1)
-quiz3 = QUIZ("누오", "누오의 세대는 무엇인가?", ["1", "2", "3", "4"], 2)
-quiz4 = QUIZ("누오", "누오의 분류는 무엇인가?", ["전설의 포켓몬", "프릴 포켓몬", "스타팅 포켓몬", "수어 포켓몬"], 4)
-quiz5 = QUIZ("누오", "어떤 포켓몬이 진화하여 누오가 되는가?", ["누리레느", "발챙이", "우파", "수댕이"], 3)
+    def exit_program(self):
+        choice = numinput(
+            "저장 후 종료하시겠습니까? (1: 저장 후 종료, 2: 저장하지 않고 종료, 3: 취소): ",
+            1,
+            3
+        )
 
-quizzes = [
-    quiz1, quiz2, quiz3, quiz4, quiz5
-]
+        if choice == 1:
+            self.save()
+            print("저장 후 종료합니다.")
+            sys.exit()
 
-basedata = {
-        "quizzes": [],
-        "best score": best_score
-    }
-for quiz in quizzes:
-    basedata["quizzes"].append({
-        "topic": quiz.topic,
-        "question": quiz.question,
-        "choices": quiz.choices,
-        "answer": quiz.answer
-    })
+        elif choice == 2:
+            print("저장하지 않고 종료합니다.")
+            sys.exit()
 
-with open("state.json", "w", encoding="utf-8") as file:
-    json.dump(basedata, file, ensure_ascii=False, indent=4)
+        else:
+            return
 
-#[check] 퀴즈 풀기
-def quizsolve():
-    global best_score
-    score = 0 
-    if len(quizzes) == 0:
-        print("저장된 퀴즈가 없습니다.") 
-        return 0
-    for quiz in quizzes: 
-        result = quiz.solve()
-        if result:
-            score +=10
-    print(score, "점 입니다.")
+    def quizsolve(self):
+        score = 0
 
-    #max score
-    if best_score < score: 
-        best_score = score
-        data["best_score"] = best_score
+        if len(self.quizzes) == 0:
+            print("저장된 퀴즈가 없습니다.")
+            return
+
+        for quiz in self.quizzes:
+            if quiz.solve():
+                score += 10
+
+        print(f"{score}점 입니다.")
+
+        # 최고 점수 갱신
+        if score > self.best_score:
+            self.best_score = score
+            self.data["best_score"] = self.best_score
+
+            with open("state.json", "w", encoding="utf-8") as file:
+                json.dump(self.data, file, ensure_ascii=False, indent=4)
+
+            print("최고 점수가 갱신되었습니다!")
+
+    def quizappend(self):
+        topic = input("퀴즈의 주제를 입력하세요: ")
+        question = input("퀴즈의 질문을 입력하세요: ")
+
+        choices = []
+        for i in range(1, 5):
+            choices.append(input(f"{i}번째 선택지를 입력하세요: "))
+
+        print("\n입력한 선택지:")
+        for i, choice in enumerate(choices, start=1):
+            print(f"{i}. {choice}")
+
+        answer = numinput("정답의 번호를 입력하세요: ")
+
+        # Quiz 객체 생성 후 목록에 추가
+        quiz = Quiz(topic, question, choices, answer)
+        self.quizzes.append(quiz)
+
+        print("퀴즈가 추가되었습니다.")
+    
+    def quizlist(self):
+        if len(self.quizzes) == 0:
+            print("저장된 퀴즈가 없습니다.")
+            return
+
+        print("\033[34m퀴즈 목록\033[0m")
+
+        for i, quiz in enumerate(self.quizzes, start=1):
+            print(f"{i}. {quiz.question}")
+    
+    def quizscore(self):
+        print(f"최고 점수: {self.best_score}점")
+    
+    def save(self):
+        self.data["quizzes"] = []
+
+        for quiz in self.quizzes:
+            self.data["quizzes"].append({
+                "topic": quiz.topic,
+                "question": quiz.question,
+                "choices": quiz.choices,
+                "answer": quiz.answer
+            })
+
+        self.data["best_score"] = self.best_score
+
         with open("state.json", "w", encoding="utf-8") as file:
-                json.dump(data, file, ensure_ascii=False, indent=4)
-    menu()
-        
-#save the maxscore
-#[check] 퀴즈 추가
-def quizappend():
-    global quizzes
-    quiz_number = len(quizzes) + 1
-    quiz_name = f"quiz{quiz_number}"
-    topic = input("Write the topic: ") 
-    question = input("Write the questioin: ")
-    choices = []
-    for i in range(1,5):
-        choices.append(input(f"Write {i}th choice: "))     
-    for i, choice in enumerate(choices, start=1):
-                print(f"{i}. {choice}")
-    answer = numinput("Write the number of the answer: ")
-    # check if the given values are usable
-    quiz_name = QUIZ(topic, question, choices, answer)
-    quizzes.append(quiz_name) 
-    menu()
+            json.dump(self.data, file, ensure_ascii=False, indent=4)
 
-# 퀴즈 목록
-def quizlist():
-    if len(quizzes) == 0:
-        print("저장된 퀴즈가 없습니다.") 
-        return 0
-    i = 0
-    print("\033[34m퀴즈 목록\033[0m")   
-    for quiz in quizzes: 
-        print(i, ".", quiz.question)
-        i+=1
-    menu()
+        print("Quizzes saved!")
 
-#[check] 퀴즈 풀기
-# 점수 확인
-def quizscore():
-    print(best_score, "is the best score!")
-    menu()
+    def load(self):
+        try:
+            with open("state.json", "r", encoding="utf-8") as file:
+                self.data = json.load(file)
 
-#[check] 퀴즈게임 클래스
+            self.best_score = self.data.get("best_score", 0)
 
-#[check] 파일 저장 및 불러오기
+            self.quizzes = []
+
+            for quiz in self.data.get("quizzes", []):
+                self.quizzes.append(
+                    Quiz(
+                        quiz["topic"],
+                        quiz["question"],
+                        quiz["choices"],
+                        quiz["answer"]
+                    )
+                )
+
+            print("Quizzes loaded!")
+
+        except (FileNotFoundError, json.JSONDecodeError, KeyError):
+            print("저장된 데이터가 없거나 손상되었습니다.")
+            print("기본 퀴즈 데이터로 복구합니다.")
+
+            self.quizzes = create_basic_quizzes()
+            self.best_score = 0
+            self.data = {
+                "quizzes": [],
+                "best_score": self.best_score
+            }
+
+            self.save()
+
+            print("기본 데이터 복구 완료!")
 
 
-def save():
-    global data
+def numinput(prompt="선택할 번호를 입력해주세요: ", min=1, max=4):
+    while True:
+        try:
+            value = input(prompt).strip()
+
+            # 빈 입력 체크
+            if value == "":
+                print("입력이 비어 있습니다. 다시 입력하세요.")
+                continue
+
+            value = int(value)
+
+            # 범위 체크
+            if value < min or value > max:
+                print(f"{min}부터 {max} 사이의 값을 입력해주세요.")
+                continue
+
+            return value
+
+        except ValueError:
+            print("정수를 입력해주세요.")
+
+        except (KeyboardInterrupt, EOFError):
+            print("\n입력이 취소되었습니다. 프로그램을 종료합니다.")
+            sys.exit(0)
+
+def create_basic_quizzes():
+    quiz1 = Quiz(
+        "누오",
+        "누오의 색깔은 무엇인가?",
+        ["빨간색", "파란색", "노란색", "주황색"],
+        2
+    )
+
+    quiz2 = Quiz(
+        "누오",
+        "누오의 타입은 무엇인가?",
+        ["물, 땅", "물, 불", "불, 땅", "전기, 비행"],
+        1
+    )
+
+    quiz3 = Quiz(
+        "누오",
+        "누오의 세대는 무엇인가?",
+        ["1", "2", "3", "4"],
+        2
+    )
+
+    quiz4 = Quiz(
+        "누오",
+        "누오의 분류는 무엇인가?",
+        ["전설의 포켓몬", "프릴 포켓몬", "스타팅 포켓몬", "수어 포켓몬"],
+        4
+    )
+
+    quiz5 = Quiz(
+        "누오",
+        "어떤 포켓몬이 진화하여 누오가 되는가?",
+        ["누리레느", "발챙이", "우파", "수댕이"],
+        3
+    )
+
+    return [quiz1, quiz2, quiz3, quiz4, quiz5]
+
+
+def create_basic_data(best_score=0):
+    quizzes = create_basic_quizzes()
+
+    basedata = {
+        "quizzes": [],
+        "best_score": best_score
+    }
 
     for quiz in quizzes:
-        data["quizzes"].append({
+        basedata["quizzes"].append({
             "topic": quiz.topic,
             "question": quiz.question,
             "choices": quiz.choices,
@@ -208,16 +296,11 @@ def save():
         })
 
     with open("state.json", "w", encoding="utf-8") as file:
-        json.dump(data, file, ensure_ascii=False, indent=4)
+        json.dump(basedata, file, ensure_ascii=False, indent=4)
 
-    print("Quizzes saved!")
-    menu()
+    return basedata
 
-def load():
-    with open("state.json", "r", encoding="utf-8") as file:
-        data = json.load(file)
 
-    print("Quizzes loaded!")
-    return data
-# just add 
-menu()
+if __name__ == "__main__":
+    game = QuizGame()
+    game.menu()

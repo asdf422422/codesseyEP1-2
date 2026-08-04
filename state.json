@@ -54,19 +54,7 @@
                 "수댕이"
             ],
             "answer": 3
-        },
-        {
-            "topic": "1",
-            "question": "1",
-            "choices": [
-                "1",
-                "1",
-                "1",
-                "1"
-            ],
-            "answer": 2
         }
     ],
-    "maxscore": 0,
-    "best_score": 20
+    "best_score": 0
 }
