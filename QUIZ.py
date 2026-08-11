@@ -23,7 +23,7 @@ BRIGHT_CYAN = "\033[96m"
 
 
 class Quiz:
-    def __init__(self, topic, question, choices, answer):
+    def __init__(self, topic, question, choices, answer, hint):
         if not isinstance(choices, (list, tuple)):
             raise TypeError("choices는 리스트 또는 튜플이어야 합니다.")
 
@@ -42,30 +42,31 @@ class Quiz:
         self.question = question
         self.choices = list(choices)
         self.answer = answer
+        self.hint = hint
 
     def solve(self):
+        hint = 0 
         print(f"\n{BOLD}{BRIGHT_BLUE}[{self.topic}]{RESET}")
         print(f"{BOLD}{self.question}{RESET}")
 
         for i, choice in enumerate(self.choices, start=1):
             print(f"{CYAN}{i}.{RESET} {choice}")
 
-        answer = numinput(
-    f"{BRIGHT_YELLOW}{BOLD}답을 입력하세요 ▶ {RESET}",
-    1,
-    4
-)
+        print("0을 입력하면 힌트를 받을 수 있습니다.")
+        answer = numinput(f"{BRIGHT_YELLOW}{BOLD}답을 입력하세요 ▶ {RESET}", 0, 4)
+        if answer == 0:
+            print(f"{CYAN}HINT: {RESET} {self.hint}")
+            hint = 1
+            answer = numinput(f"{BRIGHT_YELLOW}{BOLD}답을 입력하세요 ▶ {RESET}", 1, 4)
 
-
-        return self.grading(answer)
-
-    def grading(self, answer):
         if answer == self.answer:
+            if hint ==1: 
+                print(f"{BRIGHT_GREEN}{BOLD}✅ 정답입니다! +5점{RESET}")
+                return 5
             print(f"{BRIGHT_GREEN}{BOLD}✅ 정답입니다! +10점{RESET}")
-            return True
-
+            return 10
         print(f"{BRIGHT_RED}{BOLD}❌ 오답입니다. +0점{RESET}")
-        return False
+        return 0
 
 
 class QuizGame:
