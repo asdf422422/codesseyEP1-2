@@ -48,7 +48,6 @@ class Quiz:
 
     def solve(self):
         hint = 0 
-        print(f"\n{BOLD}{BRIGHT_BLUE}[{self.topic}]{RESET}")
         print(f"{BOLD}{self.question}{RESET}")
 
         for i, choice in enumerate(self.choices, start=1):
@@ -92,27 +91,33 @@ class QuizGame:
 {BRIGHT_GREEN}1.{RESET} 퀴즈 풀기
 {BRIGHT_GREEN}2.{RESET} 퀴즈 추가
 {BRIGHT_GREEN}3.{RESET} 목록 보기
-{BRIGHT_GREEN}4.{RESET} 최고 점수
-{BRIGHT_GREEN}5.{RESET} 저장 / 불러오기
+{BRIGHT_GREEN}4.{RESET} 퀴즈 삭제
+{BRIGHT_GREEN}5.{RESET} 최고 점수
+{BRIGHT_GREEN}6.{RESET} 저장 / 불러오기
 {BRIGHT_RED}0.{RESET} 종료
 """)
-            select = numinput(f"{BRIGHT_GREEN}{BOLD}메뉴 선택 ▶ {RESET}", 0, 6)
+            try:
+                select = numinput(f"{BRIGHT_GREEN}{BOLD}메뉴 선택 ▶ {RESET}", 0, 6)
 
-            if select == 0:
-                self.exit_program()
-            elif select == 1:
-                self.quizsolve()
-            elif select == 2:
-                self.quizappend()
-            elif select == 3:
-                self.quizlist()
-            elif select ==4:
-                self.quizdelete()
+                if select == 0:
+                    self.exit_program()
+                elif select == 1:
+                    self.quizsolve()
+                elif select == 2:
+                    self.quizappend()
+                elif select == 3:
+                    self.quizlist()
+                elif select ==4:
+                    self.quizdelete()
 
-            elif select == 5:
-                self.quizscore()
-            elif select == 6:
-                self.file_menu()
+                elif select == 5:
+                    self.quizscore()
+                elif select == 6:
+                    self.file_menu()
+            except(KeyboardInterrupt, EOFError):
+                print("\n입력이 취소되었습니다.")
+                self.data_manager.save()
+                exit()
 
     def file_menu(self):
         print("1. 저장")
@@ -157,8 +162,6 @@ class QuizGame:
         # 최고 점수 갱신
         if score > self.best_score:
             self.best_score = score
-            self.data["best_score"] = self.best_score
-
             self.data_manager.save()
 
             print(f"{BRIGHT_MAGENTA}{BOLD}🏆 최고 점수가 갱신되었습니다!{RESET}")
@@ -169,19 +172,38 @@ class QuizGame:
 
 
     def quizappend(self):
-        
-        question = input("퀴즈의 질문을 입력하세요: ")
 
+        # 질문 입력
+        while True:
+            question = input("퀴즈의 질문을 입력하세요: ").strip()
+            if question:
+                break
+            print("질문을 입력해주세요.")
+
+        # 선택지 입력
         choices = []
         for i in range(1, 5):
-            choices.append(input(f"{i}번째 선택지를 입력하세요: "))
+            while True:
+                choice = input(f"{i}번째 선택지를 입력하세요: ").strip()
+                if choice:
+                    choices.append(choice)
+                    break
+                print("선택지를 입력해주세요.")
 
         print("\n입력한 선택지:")
         for i, choice in enumerate(choices, start=1):
             print(f"{i}. {choice}")
 
+        # 정답 번호 입력
         answer = numinput("정답의 번호를 입력하세요: ")
-        hint = input("정답에 대한 힌트 입력하세요: ")
+
+        # 힌트 입력
+        while True:
+            hint = input("정답에 대한 힌트 입력하세요: ").strip()
+            if hint:
+                break
+            print("힌트를 입력해주세요.")
+
         # Quiz 객체 생성 후 목록에 추가
         quiz = Quiz(question, choices, answer, hint)
         self.quizzes.append(quiz)
@@ -208,49 +230,43 @@ class QuizGame:
 
 
 class GameData:
-    def __init__(self, filename="state.json"):
-        self.filename = filename
+    def __init__(self):
         self.quizzes = []
         self.best_score = 0
-        self.history = []  # 게임 기록을 저장할 리스트 추가
-        self.load()
+        self.history = []
+        self.load() # 시작 시 자동 로드
 
     def save(self):
-        """현재 데이터를 JSON 파일로 저장합니다."""
+        # 퀴즈 객체를 딕셔너리로 변환하여 저장
         data = {
             "best_score": self.best_score,
-            "history": self.history,  # 히스토리 추가
-            "quizzes": [
-                {
-                    "topic": q.topic,
-                    "question": q.question,
-                    "choices": q.choices,
-                    "answer": q.answer
-                } for q in self.quizzes
-            ]
+            "quizzes": [q.__dict__ for q in self.quizzes]
         }
-        
-        try:
-            with open(self.filename, "w", encoding="utf-8") as file:
-                json.dump(data, file, ensure_ascii=False, indent=4)
-            print(f"✔ 데이터 저장 완료!")
-        except Exception as e:
-            print(f"저장 중 오류 발생: {e}")
+        with open("state.json", "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+        print(f"{GREEN}데이터가 저장되었습니다.{RESET}")
 
     def load(self):
-        """파일에서 데이터를 불러옵니다."""
         try:
-            with open(self.filename, "r", encoding="utf-8") as file:
-                data = json.load(file)
+            with open("state.json", "r", encoding="utf-8") as f:
+                data = json.load(f)
                 self.best_score = data.get("best_score", 0)
-                self.history = data.get("history", []) # 히스토리 불러오기
-                self.quizzes = [
-                    Quiz(q["topic"], q["question"], q["choices"], q["answer"])
-                    for q in data.get("quizzes", [])
-                ]
-            print(f"✔ 데이터 불러오기 완료!")
-        except (FileNotFoundError, json.JSONDecodeError):
-            self.reset_to_default()
+                self.quizzes = [Quiz(**q) for q in data.get("quizzes", [])]
+        except (FileNotFoundError, json.JSONDecodeError, KeyError):
+            print(f"{BRIGHT_RED}{BOLD}저장된 데이터가 없거나 손상되었습니다.{RESET}")
+            print("기본 퀴즈 데이터로 복구합니다.")
+
+            self.quizzes = self.create_basic_quizzes()
+            self.best_score = 0
+            self.data = {
+                "quizzes": [],
+                "best_score": self.best_score
+            }
+
+            self.save()
+
+            print(f"{BRIGHT_CYAN}✔ 데이터 불러오기 완료!{RESET}")
+
 
     def add_history(self, quizzes, score, startT, endT):
         """새로운 게임 결과를 히스토리에 추가하고 최고 점수를 갱신합니다."""
@@ -261,9 +277,8 @@ class GameData:
 
         # 2. 히스토리 데이터 생성
         record = {
-            "quizzes": quizzes,
             "quizlength": len(quizzes),
-            "score": score/(len(quizzes)*10),
+            "score": score,
             "start_time": startT,
             "end_time": endT,
             "quiz_count": len(quizzes)
@@ -284,38 +299,28 @@ class GameData:
         # (기존 코드와 동일)
         return [
             Quiz("누오의 색깔은 무엇인가?", ["빨간색", "하늘색", "노란색", "주황색"], 2, "누오는 물에 산다."),
-            # ... 생략
+            Quiz("누오의 타입은 무엇인가?", ["물, 땅", "물, 불", "불, 땅", "전기, 비행"], 1, "누오는 물에 산다."),
+            Quiz("누오의 세대는 무엇인가?", ["1", "2", "3", "4"], 2, "꽤 초반이다."),
+            Quiz("누오의 분류는 무엇인가?", ["전설의 포켓몬", "프릴 포켓몬", "스타팅 포켓몬", "수어 포켓몬"], 4, "누오는 물에 산다."),
+            Quiz("어떤 포켓몬이 진화하여 누오가 되는가?", ["누리레느", "발챙이", "우파", "수댕이"], 3, "작고 동그랗다.")
         ]
 
 
-def numinput(prompt="선택할 번호를 입력해주세요: ", min=1, max=4):
+def numinput(prompt, min_val=None, max_val=None):
     while True:
         try:
-            value = input(prompt).strip()
-
-            # 빈 입력 체크
-            if value == "":
-                print("입력이 비어 있습니다. 다시 입력하세요.")
+            val = int(input(prompt))
+            if min_val is not None and val < min_val:
+                print(f"{min_val} 이상의 숫자를 입력하세요.")
                 continue
-
-            value = int(value)
-
-            # 범위 체크
-            if value < min or value > max:
-                print(f"{min}부터 {max} 사이의 값을 입력해주세요.")
+            if max_val is not None and val > max_val:
+                print(f"{max_val} 이하의 숫자를 입력하세요.")
                 continue
-
-            return value
-
+            return val
         except ValueError:
-            print("정수를 입력해주세요.")
-
-        except (KeyboardInterrupt, EOFError):
+            print(f"{RED}숫자만 입력 가능합니다. 다시 시도하세요.{RESET}")
+        except(KeyboardInterrupt, EOFError):
             print("\n입력이 취소되었습니다.")
-            game.data_manager.save()
-            print("프로그램을 종료합니다.")
-            sys.exit(0)
-
 
 if __name__ == "__main__":
     game = QuizGame()
