@@ -38,7 +38,6 @@
 
 ## 파일 구조
 
-### QUIZ.py 코드 구조
 #### Quiz class <br>
 - 퀴즈 객체를 관리한다.
 - 해당 퀴즈를 출력하고 정답을 입력받아 점수를 반환할 수 있다. 
@@ -185,3 +184,51 @@ history = {
 ```
 
 </details>
+
+## 개발 환경
+VS Code: 1.112.0 <br>
+python: 3.12.13 <br>
+git: 2.53.0 <br>
+
+<img width="381" height="110" alt="스크린샷 2026-08-11 오후 1 34 16" src="https://github.com/user-attachments/assets/3250dbd3-d335-4bb6-8ca7-0a5d6d79c7e3" />
+
+<details>
+<summary> git config </summary>
+
+```bash
+credential.helper=osxkeychain
+core.repositoryformatversion=0
+core.filemode=true
+core.bare=false
+core.logallrefupdates=true
+core.ignorecase=true
+core.precomposeunicode=true
+submodule.active=.
+remote.origin.url=https://github.com/asdf422422/codesseyEP1-2.git
+remote.origin.fetch=+refs/heads/*:refs/remotes/origin/*
+branch.main.remote=origin
+branch.main.merge=refs/heads/main
+branch.main.vscode-merge-base=origin/main
+user.name=서현
+user.email=00a0s0d0f00@gmail.com
+```
+
+<img width="466" height="204" alt="스크린샷 2026-08-11 오후 1 35 53" src="https://github.com/user-attachments/assets/d9912778-c92e-4b45-8f78-865a23c99a31" />
+
+</details>
+
+## 프로그램 실행 결과
+### 퀴즈 추가
+<img width="318" height="198" alt="스크린샷 2026-08-11 오후 1 39 32" src="https://github.com/user-attachments/assets/3491fd9d-8192-4dee-a66a-7a8b4d90ce82" />
+
+### 퀴즈 목록
+<img width="319" height="109" alt="스크린샷 2026-08-11 오후 1 38 49" src="https://github.com/user-attachments/assets/ad97a2a0-8f11-4141-8c94-e5053880ea55" />
+
+### 퀴즈 플레이
+<img width="357" height="495" alt="스크린샷 2026-08-11 오후 1 38 11" src="https://github.com/user-attachments/assets/fbb89ee6-364a-47b6-bf96-588670e16572" />
+
+### 점수
+<img width="137" height="29" alt="스크린샷 2026-08-11 오후 1 40 32" src="https://github.com/user-attachments/assets/f4180350-4758-428d-8fe9-0cc37de88152" />
+
+## Git log 
+<img width="866" height="406" alt="스크린샷 2026-08-11 오후 1 37 00" src="https://github.com/user-attachments/assets/6a9396e3-d169-4013-87b6-a0f80de599f1" />
