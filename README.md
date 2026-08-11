@@ -58,25 +58,130 @@
 
 <br>
 
-## 데이터 파일 설명(state.json 등)
-- quiz 클래스의 규칙에 따라 생성된 퀴즈 객체들을 quizzes라는 리스트에 묶었다.
+## 데이터 파일 설명
+- 경로: root/state.json
+- 역할: 게임이 재실행되더라도 퀴즈와 점수 기록이 유지될 수 있도록 한다.
+
+스키마
 - best score을 점수로 기록하였다. 
+- quiz 클래스의 규칙에 따라 생성된 퀴즈 객체들을 quizzes라는 리스트에 묶었다.
+- 인스턴스를 딕셔너리 형태로 변환해 저장하였다.
 - 퀴즈 개수와 점수, 시작 및 종료 시간을 확인 할 수 있는 게임 진행 히스토리를 기록하였다. 
-```json
+
+파일 스키마
+```py
+data = {
+    "best_score": self.best_score, #int
+    "quizzes": [q.__dict__ for q in self.quizzes],
+    "history": self.history #리스트
+}
+```
+퀴즈 객체의 클래스 
+```py
+def __init__(self, question, choices, answer, hint):
+    self.question = question #str
+    self.choices = list(choices) #list
+    self.answer = answer #int
+    self.hint = hint #str
+```
+
+
+히스토리
+
+```py
+history = {
+    "quizlength": len(quizzes), #int
+    "score": score, #int
+    "start_time": startT, #str('%Y-%m-%d %H:%M:%S')
+    "end_time": endT, #str('%Y-%m-%d %H:%M:%S')
+}
+```
+
+<br>
+
+<details>
+<summary> 파일 구조 예시 </summary>
+    
+```js
 {
+    "best_score": 20,
     "quizzes": [
         {
-            "topic": "누오",
             "question": "누오의 색깔은 무엇인가?",
             "choices": [
                 "빨간색",
-                "파란색",
+                "하늘색",
                 "노란색",
                 "주황색"
             ],
-            "answer": 2
+            "answer": 2,
+            "hint": "누오는 물에 산다."
+        },
+        {
+            "question": "누오의 세대는 무엇인가?",
+            "choices": [
+                "1",
+                "2",
+                "3",
+                "4"
+            ],
+            "answer": 2,
+            "hint": "꽤 초반이다."
+        },
+        {
+            "question": "누오의 분류는 무엇인가?",
+            "choices": [
+                "전설의 포켓몬",
+                "프릴 포켓몬",
+                "스타팅 포켓몬",
+                "수어 포켓몬"
+            ],
+            "answer": 4,
+            "hint": "누오는 물에 산다."
+        },
+        {
+            "question": "어떤 포켓몬이 진화하여 누오가 되는가?",
+            "choices": [
+                "누리레느",
+                "발챙이",
+                "우파",
+                "수댕이"
+            ],
+            "answer": 3,
+            "hint": "작고 동그랗다."
+        },
+        {
+            "question": "테스트",
+            "choices": [
+                "1번",
+                "2번",
+                "정답",
+                "4번"
+            ],
+            "answer": 3,
+            "hint": "힌트"
+        },
+        {
+            "question": "1",
+            "choices": [
+                "3",
+                "421",
+                "42",
+                "2"
+            ],
+            "answer": 2,
+            "hint": "adf"
+        }
+    ],
+    "history": [
+        {
+            "quizlength": 2,
+            "score": 10,
+            "start_time": "2026-08-11 13:18:26",
+            "end_time": "2026-08-11 13:18:28"
         }
     ]
-    "best score" : 80
 }
 ```
+
+</details>
