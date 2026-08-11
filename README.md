@@ -231,4 +231,10 @@ user.email=00a0s0d0f00@gmail.com
 <img width="137" height="29" alt="스크린샷 2026-08-11 오후 1 40 32" src="https://github.com/user-attachments/assets/f4180350-4758-428d-8fe9-0cc37de88152" />
 
 ## Git log 
+커밋 / 머지 기록 <br>
 <img width="866" height="406" alt="스크린샷 2026-08-11 오후 1 37 00" src="https://github.com/user-attachments/assets/6a9396e3-d169-4013-87b6-a0f80de599f1" />
+pull 기록 <br>
+<img width="438" height="27" alt="스크린샷 2026-08-11 오후 1 47 05" src="https://github.com/user-attachments/assets/a4025863-c296-4b0c-97ca-36067fa59cf9" />
+clone 기록 <br><img width="534" height="100" alt="스크린샷 2026-08-11 오후 1 50 16" src="https://github.com/user-attachments/assets/85b992a6-f097-4e93-838b-437915d4e539" />
+
+
