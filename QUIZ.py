@@ -282,7 +282,6 @@ class GameData:
             "score": score,
             "start_time": startT,
             "end_time": endT,
-            "quiz_count": len(quizzes)
         }
         self.history.append(record)
         
