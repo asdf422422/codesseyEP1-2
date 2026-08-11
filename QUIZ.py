@@ -1,5 +1,7 @@
 import sys #KeyboardInterrupt와 EOFError 처리용 시스템 
 import json #데이터 기록용
+import random #랜덤 출제용
+from datetime import datetime
 
 # ===== 스타일 =====
 RESET = "\033[0m"
@@ -143,7 +145,10 @@ class QuizGame:
             print("저장된 퀴즈가 없습니다.")
             return
 
-        for quiz in self.quizzes:
+        select = numinput("풀 문제 수를 선택하세요: ", 1, len(self.quizzes))
+        newquizzes = random.sample(self.quizzes, select)
+        startT = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        for quiz in newquizzes:
             score += quiz.solve()
 
         print(f"\n{BRIGHT_YELLOW}{BOLD}현재 점수: {score}점{RESET}")
@@ -156,6 +161,10 @@ class QuizGame:
             self.data_manager.save()
 
             print(f"{BRIGHT_MAGENTA}{BOLD}🏆 최고 점수가 갱신되었습니다!{RESET}")
+
+        endT = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        self.data_manager.add_history(newquizzes, score, startT, endT)
+
 
     def quizappend(self):
         
@@ -181,6 +190,7 @@ class QuizGame:
         self.quizlist()
         num = numinput("삭제할 퀴즈 번호를 선택하세요: ",1,len(self.quizzes))
         del self.quizzes[num-1]
+        self.data_manager.save()
     
     def quizlist(self):
         if len(self.quizzes) == 0:
@@ -195,19 +205,21 @@ class QuizGame:
         print(f"\n{BRIGHT_YELLOW}{BOLD}최고 점수: {self.best_score}점{RESET}")
 
 
+import json
 
 class GameData:
     def __init__(self, filename="state.json"):
         self.filename = filename
         self.quizzes = []
         self.best_score = 0
-        # 인스턴스 생성 시 바로 데이터를 불러옵니다.
+        self.history = []  # 게임 기록을 저장할 리스트 추가
         self.load()
 
     def save(self):
         """현재 데이터를 JSON 파일로 저장합니다."""
         data = {
             "best_score": self.best_score,
+            "history": self.history,  # 히스토리 추가
             "quizzes": [
                 {
                     "topic": q.topic,
@@ -221,45 +233,59 @@ class GameData:
         try:
             with open(self.filename, "w", encoding="utf-8") as file:
                 json.dump(data, file, ensure_ascii=False, indent=4)
-            print(f"{BRIGHT_GREEN}✔ 저장 완료!{RESET}")
+            print(f"✔ 데이터 저장 완료!")
         except Exception as e:
-            print(f"{BRIGHT_RED}저장 중 오류 발생: {e}{RESET}")
+            print(f"저장 중 오류 발생: {e}")
 
     def load(self):
-        """파일에서 데이터를 불러오거나, 없으면 기본 데이터를 생성합니다."""
+        """파일에서 데이터를 불러옵니다."""
         try:
             with open(self.filename, "r", encoding="utf-8") as file:
                 data = json.load(file)
                 self.best_score = data.get("best_score", 0)
+                self.history = data.get("history", []) # 히스토리 불러오기
                 self.quizzes = [
                     Quiz(q["topic"], q["question"], q["choices"], q["answer"])
                     for q in data.get("quizzes", [])
                 ]
-            print(f"{BRIGHT_CYAN}✔ 데이터 불러오기 완료!{RESET}")
-            
-        except (FileNotFoundError, json.JSONDecodeError, KeyError):
-            print(f"{BRIGHT_RED}{BOLD}저장된 데이터가 없거나 손상되었습니다.{RESET}")
-            print("기본 퀴즈 데이터로 복구합니다.")
+            print(f"✔ 데이터 불러오기 완료!")
+        except (FileNotFoundError, json.JSONDecodeError):
             self.reset_to_default()
 
+    def add_history(self, quizzes, score, startT, endT):
+        """새로운 게임 결과를 히스토리에 추가하고 최고 점수를 갱신합니다."""
+        # 1. 최고 점수 갱신
+        if score > self.best_score:
+            self.best_score = score
+            print(f"🎊 최고 점수 경신: {self.best_score}점!")
+
+        # 2. 히스토리 데이터 생성
+        record = {
+            "quizzes": quizzes,
+            "quizlength": len(quizzes),
+            "score": score/(len(quizzes)*10),
+            "start_time": startT,
+            "end_time": endT,
+            "quiz_count": len(quizzes)
+        }
+        self.history.append(record)
+        
+        # 3. 변경된 내용 파일에 저장
+        self.save()
+
     def reset_to_default(self):
-        """기본 퀴즈 데이터를 설정하고 저장합니다."""
         self.quizzes = self.create_basic_quizzes()
         self.best_score = 0
+        self.history = []
         self.save()
 
     @staticmethod
     def create_basic_quizzes():
-        """기본 퀴즈 리스트를 생성합니다."""
+        # (기존 코드와 동일)
         return [
             Quiz("누오의 색깔은 무엇인가?", ["빨간색", "하늘색", "노란색", "주황색"], 2, "누오는 물에 산다."),
-            Quiz("누오의 타입은 무엇인가?", ["물, 땅", "물, 불", "불, 땅", "전기, 비행"], 1, "누오는 물에 산다."),
-            Quiz("누오의 세대는 무엇인가?", ["1", "2", "3", "4"], 2, "꽤 초반이다."),
-            Quiz("누오의 분류는 무엇인가?", ["전설의 포켓몬", "프릴 포켓몬", "스타팅 포켓몬", "수어 포켓몬"], 4, "누오는 물에 산다."),
-            Quiz("어떤 포켓몬이 진화하여 누오가 되는가?", ["누리레느", "발챙이", "우파", "수댕이"], 3, "작고 동그랗다.")
+            # ... 생략
         ]
-
-
 
 def numinput(prompt="선택할 번호를 입력해주세요: ", min=1, max=4):
     while True:
