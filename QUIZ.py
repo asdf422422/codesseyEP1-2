@@ -81,8 +81,8 @@ class QuizGame:
 
     
     def menu(self):
-        while True:
-            print(f"""
+
+        print(f"""
 {BRIGHT_CYAN}{BOLD}
 ===================================
         🎮 퀴즈 게임
@@ -96,28 +96,24 @@ class QuizGame:
 {BRIGHT_GREEN}6.{RESET} 저장 / 불러오기
 {BRIGHT_RED}0.{RESET} 종료
 """)
-            try:
-                select = numinput(f"{BRIGHT_GREEN}{BOLD}메뉴 선택 ▶ {RESET}", 0, 6)
 
-                if select == 0:
-                    self.exit_program()
-                elif select == 1:
-                    self.quizsolve()
-                elif select == 2:
-                    self.quizappend()
-                elif select == 3:
-                    self.quizlist()
-                elif select ==4:
-                    self.quizdelete()
+        select = numinput(f"{BRIGHT_GREEN}{BOLD}메뉴 선택 ▶ {RESET}", 0, 6)
 
-                elif select == 5:
-                    self.quizscore()
-                elif select == 6:
-                    self.file_menu()
-            except(KeyboardInterrupt, EOFError):
-                print("\n입력이 취소되었습니다.")
-                self.data_manager.save()
-                exit()
+        if select == 0:
+            self.exit_program()
+        elif select == 1:
+            self.quizsolve()
+        elif select == 2:
+            self.quizappend()
+        elif select == 3:
+            self.quizlist()
+        elif select ==4:
+            self.quizdelete()
+        elif select == 5:
+            self.quizscore()
+        elif select == 6:
+            self.file_menu()
+
 
     def file_menu(self):
         print("1. 저장")
@@ -174,21 +170,13 @@ class QuizGame:
     def quizappend(self):
 
         # 질문 입력
-        while True:
-            question = input("퀴즈의 질문을 입력하세요: ").strip()
-            if question:
-                break
-            print("질문을 입력해주세요.")
+        question = blankinput("퀴즈의 질문을 입력하세요: ")
+
 
         # 선택지 입력
         choices = []
         for i in range(1, 5):
-            while True:
-                choice = input(f"{i}번째 선택지를 입력하세요: ").strip()
-                if choice:
-                    choices.append(choice)
-                    break
-                print("선택지를 입력해주세요.")
+            choice = blankinput(f"{i}번째 선택지를 입력하세요: ")
 
         print("\n입력한 선택지:")
         for i, choice in enumerate(choices, start=1):
@@ -198,11 +186,7 @@ class QuizGame:
         answer = numinput("정답의 번호를 입력하세요: ")
 
         # 힌트 입력
-        while True:
-            hint = input("정답에 대한 힌트 입력하세요: ").strip()
-            if hint:
-                break
-            print("힌트를 입력해주세요.")
+        hint = blankinput("정답에 대한 힌트 입력하세요: ")
 
         # Quiz 객체 생성 후 목록에 추가
         quiz = Quiz(question, choices, answer, hint)
@@ -306,23 +290,32 @@ class GameData:
         ]
 
 
-def numinput(prompt, min_val=None, max_val=None):
+def numinput(prompt, min_val=1, max_val=4):
     while True:
         try:
             val = int(input(prompt))
-            if min_val is not None and val < min_val:
+            if val < min_val:
                 print(f"{min_val} 이상의 숫자를 입력하세요.")
                 continue
-            if max_val is not None and val > max_val:
+            if val > max_val:
                 print(f"{max_val} 이하의 숫자를 입력하세요.")
                 continue
             return val
         except ValueError:
             print(f"{RED}숫자만 입력 가능합니다. 다시 시도하세요.{RESET}")
-        except(KeyboardInterrupt, EOFError):
-            print("\n입력이 취소되었습니다.")
-            exit()
+
+def blankinput(prompt):
+    while True:
+        val = input(prompt).strip()
+        if val:
+            return val
+        print("빈 입력입니다.")
 
 if __name__ == "__main__":
     game = QuizGame()
-    game.menu()
+    try:
+        game.menu()
+    except(KeyboardInterrupt, EOFError):
+        print("종료")
+        game.data_manager.save()
+        sys.exit()
