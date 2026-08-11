@@ -177,6 +177,7 @@ class QuizGame:
         choices = []
         for i in range(1, 5):
             choice = blankinput(f"{i}번째 선택지를 입력하세요: ")
+            choices.append(choice)
 
         print("\n입력한 선택지:")
         for i, choice in enumerate(choices, start=1):
@@ -313,9 +314,10 @@ def blankinput(prompt):
 
 if __name__ == "__main__":
     game = QuizGame()
-    try:
-        game.menu()
-    except(KeyboardInterrupt, EOFError):
-        print("종료")
-        game.data_manager.save()
-        sys.exit()
+    while True:
+        try:
+            game.menu()
+        except(KeyboardInterrupt, EOFError):
+            print("종료")
+            game.data_manager.save()
+            sys.exit()
