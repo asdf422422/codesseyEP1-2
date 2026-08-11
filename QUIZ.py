@@ -1,9 +1,9 @@
 import sys #KeyboardInterrupt와 EOFError 처리용 시스템 
 import json #데이터 기록용
 import random #랜덤 출제용
-from datetime import datetime
+from datetime import datetime #시간/날짜 기록용
 
-# ===== 스타일 =====
+# region 스타일
 RESET = "\033[0m"
 BOLD = "\033[1m"
 
@@ -22,6 +22,7 @@ BRIGHT_YELLOW = "\033[93m"
 BRIGHT_BLUE = "\033[94m"
 BRIGHT_MAGENTA = "\033[95m"
 BRIGHT_CYAN = "\033[96m"
+# endregion
 
 
 class Quiz:
@@ -74,7 +75,7 @@ class QuizGame:
     def __init__(self):
         # 1. 데이터 관리자 인스턴스 생성 (의존성 주입 준비)
         self.data_manager = GameData()
-        
+
         # 2. 데이터 관리자로부터 초기 값 가져오기
         self.quizzes = self.data_manager.quizzes
         self.best_score = self.data_manager.best_score
@@ -164,6 +165,7 @@ class QuizGame:
 
         endT = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.data_manager.add_history(newquizzes, score, startT, endT)
+        print(self.data_manager.history)
 
 
     def quizappend(self):
@@ -204,8 +206,6 @@ class QuizGame:
     def quizscore(self):
         print(f"\n{BRIGHT_YELLOW}{BOLD}최고 점수: {self.best_score}점{RESET}")
 
-
-import json
 
 class GameData:
     def __init__(self, filename="state.json"):
@@ -287,6 +287,7 @@ class GameData:
             # ... 생략
         ]
 
+
 def numinput(prompt="선택할 번호를 입력해주세요: ", min=1, max=4):
     while True:
         try:
@@ -316,8 +317,6 @@ def numinput(prompt="선택할 번호를 입력해주세요: ", min=1, max=4):
             sys.exit(0)
 
 
-
 if __name__ == "__main__":
     game = QuizGame()
-    data = GameData()
     game.menu()
