@@ -240,7 +240,8 @@ class GameData:
         # 퀴즈 객체를 딕셔너리로 변환하여 저장
         data = {
             "best_score": self.best_score,
-            "quizzes": [q.__dict__ for q in self.quizzes]
+            "quizzes": [q.__dict__ for q in self.quizzes],
+            "history": self.history
         }
         with open("state.json", "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
