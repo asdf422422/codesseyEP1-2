@@ -281,7 +281,7 @@ class GameData:
             "quizlength": len(quizzes),
             "score": score,
             "start_time": startT,
-            "end_time": endT,
+            "end_time": endT
         }
         self.history.append(record)
         
@@ -321,6 +321,7 @@ def numinput(prompt, min_val=None, max_val=None):
             print(f"{RED}숫자만 입력 가능합니다. 다시 시도하세요.{RESET}")
         except(KeyboardInterrupt, EOFError):
             print("\n입력이 취소되었습니다.")
+            exit()
 
 if __name__ == "__main__":
     game = QuizGame()
